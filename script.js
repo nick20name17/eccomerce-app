@@ -1,11 +1,3 @@
-// fetch("https://api.escuelajs.co/api/v1/product", {
-//     method: "POST",
-//     headers: {
-//         "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify(productToCreate),
-// });
-
 const cardList = document.querySelector("#card-list");
 
 const trunc = (text, maxLenght) =>
