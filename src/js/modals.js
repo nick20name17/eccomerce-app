@@ -1,10 +1,5 @@
-const cardList = document.querySelector("#card-list");
-
-const trunc = (text, maxLenght) =>
-    text?.length > maxLenght ? text?.substring(0, maxLenght - 3) + "..." : text;
-
-const deleteModalMarkup = (productTitle, productId) => {
-    return `
+export const deleteModalMarkup = (productTitle, productId) => {
+  return `
     <button
     type="button"
     class="btn btn-danger"
@@ -77,8 +72,8 @@ const deleteModalMarkup = (productTitle, productId) => {
     </div>`;
 };
 
-const editModal = (defaultValues) => {
-    return ` 
+export const editModal = (defaultValues) => {
+  return ` 
     <button
         type="button"
         class="btn btn-warning"
@@ -168,122 +163,3 @@ const editModal = (defaultValues) => {
     </div>
 </div>`;
 };
-
-const renderCards = (products) => {
-    cardList.innerHTML = "";
-    products.forEach((product) => {
-        const cardHTML = ` 
-            <div class="card" style="width: 18rem;">
-                <img src="${product.images[0]}" class="card-img-top" alt="${
-            product.title
-        }" />
-                <div class="card-body">
-                    <h5 class="card-title">${product.title}</h5>
-                    <p class="card-text">
-                       ${trunc(product.description, 100)} 
-                    </p>
-                    <p class="card-text font-weight-bold">
-                       ${product.price} $
-                    </p>
-                    <a href="#" class="btn btn-primary">Go somewhere</a>
-                   ${deleteModalMarkup(product.title, product.id)}
-                   ${editModal(product)}
-                </div>
-            </div>`;
-
-        cardList.insertAdjacentHTML("beforeend", cardHTML);
-    });
-};
-
-const getCards = () => {
-    fetch("https://api.escuelajs.co/api/v1/products?offset=0&limit=10")
-        .then((response) => response.json())
-        .then((data) => {
-            renderCards(data);
-            const deleteBtns = document.querySelectorAll(".delete-btn");
-            deleteBtns.forEach((btn) => {
-                btn.addEventListener("click", () => {
-                    const productId = btn.id;
-                    deleteProduct(productId);
-                    btn.closest(".card").remove();
-                    document.querySelector(".modal-backdrop").remove();
-                    document.body.style = "";
-                });
-            });
-
-            const editProductForms =
-                document.querySelectorAll("#edit-product-form");
-
-            editProductForms.forEach((editProductForm) => {
-                editProductForm.addEventListener("submit", (e) => {
-                    e.preventDefault();
-                    editProduct(editProductForm.dataset.product);
-                    document.querySelector(".modal-backdrop").remove();
-                    editProductForm.remove();
-                    document.body.style = "";
-                });
-            });
-        });
-};
-
-getCards();
-
-const deleteProduct = (productId) => {
-    fetch(`https://api.escuelajs.co/api/v1/products/${productId}`, {
-        method: "DELETE",
-    }).then(getCards);
-};
-
-const editProduct = (productId) => {
-    const title = document.querySelector("#edit-product-title").value;
-    const description = document.querySelector("#edit-product-descr").value;
-    const price = +document.querySelector("#edit-product-price").value;
-    const categoryId = +document.querySelector("#edit-product-category").value;
-
-    const productToEdit = {
-        title,
-        description,
-        price,
-        categoryId,
-        images: ["https://placeimg.com/640/480/any"],
-    };
-
-    fetch(`https://api.escuelajs.co/api/v1/products/${productId}`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(productToEdit),
-    }).then(getCards);
-};
-
-const addBtn = document.querySelector("#add-btn");
-const addProductForm = document.querySelector("#add-product-form");
-
-const addProduct = () => {
-    const title = document.querySelector("#product-title").value;
-    const description = document.querySelector("#product-descr").value;
-    const price = +document.querySelector("#product-price").value;
-    const categoryId = +document.querySelector("#product-category").value;
-
-    const productToAdd = {
-        title,
-        description,
-        price,
-        categoryId,
-        images: ["https://placeimg.com/640/480/any"],
-    };
-
-    fetch("https://api.escuelajs.co/api/v1/products", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(productToAdd),
-    });
-};
-
-addProductForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    addProduct();
-});
