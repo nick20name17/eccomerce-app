@@ -59,11 +59,67 @@ export const searchProductFormHandler = async () => {
 
     const debouncedGetProducts = debounce(
         async (searchTerm) =>
-            await getProducts(searchTerm).then((data) => renderCards(data))
+            await getProducts({ title: searchTerm }).then((data) =>
+                renderCards(data)
+            )
     );
 
     searchInput.addEventListener("input", async (e) => {
         const searchTerm = e.target.value;
         debouncedGetProducts(searchTerm);
     });
+};
+
+export const paginationHandler = () => {
+    const btnPrev = document.querySelector("#btn-prev");
+    const btnNext = document.querySelector("#btn-next");
+    const paginationList = document.querySelector("#pagination-list");
+
+    let currentPage = 0;
+    let currentLimit = 10;
+    let totalPages = 10;
+
+    const renderPaginationItems = () => {
+        paginationList.innerHTML = "";
+
+        for (let i = 1; i <= totalPages; i++) {
+            const paginationButton = document.createElement("li");
+            paginationButton.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+
+            paginationButton.addEventListener("click", async () => {
+                currentPage = i;
+                const products = await getProducts({
+                    offset: currentPage * currentLimit,
+                    limit: currentLimit,
+                });
+                renderCards(products);
+            });
+
+            paginationList.insertAdjacentElement("beforeend", paginationButton);
+        }
+    };
+
+    btnPrev.addEventListener("click", async () => {
+        if (currentPage > 0) {
+            currentPage--;
+            const products = await getProducts({
+                offset: currentPage * currentLimit,
+                limit: currentLimit,
+            });
+            renderCards(products);
+        }
+    });
+
+    btnNext.addEventListener("click", async () => {
+        if (currentPage < totalPages) {
+            currentPage++;
+            const products = await getProducts({
+                offset: currentPage * currentLimit,
+                limit: currentLimit,
+            });
+            renderCards(products);
+        }
+    });
+
+    renderPaginationItems();
 };
